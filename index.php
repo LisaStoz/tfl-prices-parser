@@ -1,275 +1,123 @@
 <?php
 
-    function readSheet($db, $Reader, $sheetNr, $functionName) {
-        $Reader -> ChangeSheet($sheetNr);       
-        $counter = 0;
-        foreach ($Reader as $row) {
-            $counter++;
-            if ($counter > 1) {  
-                for ($i = 0; $i <= 8; $i++) {
-                    if ($row[$i] == '')
-                        $row[$i] = 0;
-                }
-                    
-                $wheres = $functionName($row, 2, 0);
-                update_price($db, $wheres, $row[4]);
-                $wheres = $functionName($row, 2, 1);
-                update_price($db, $wheres, $row[5]);
-                $wheres = $functionName($row, 2, 2);
-                update_price($db, $wheres, $row[6]);
-                $wheres = $functionName($row, 2, 3);
-                update_price($db, $wheres, $row[7]);
-                $wheres = $functionName($row, 4, 0);
-                update_price($db, $wheres, $row[8]);
-                $wheres = $functionName($row, 4, 4);
-                update_price($db, $wheres, $row[9]);
-                $wheres = $functionName($row, 6, 0);
-                update_price($db, $wheres, $row[10]);
-                $wheres = $functionName($row, 7, 0);
-                update_price($db, $wheres, $row[11]);
-                $wheres = $functionName($row, 8, 0);
-                update_price($db, $wheres, $row[12]);
-            }           
-        }
-    }
-    
-    function update_price($db, $wheres, $value) {
-        $parts = array();        
-        foreach ($wheres as $column=>$v) {
-            array_push($parts, $column."='".$v."'");            
-        }
-       
-        $sql = "UPDATE prices SET value = '".$value."' WHERE ".implode(" AND ", $parts);                             
-        $sth = $db->prepare($sql);
-        $sth->execute(array($value));       
-    }
-    
-       
-
-    function underground($row, $price_group) {                        
-        $wheres = array(
-            'price_group'=>$price_group,
-            'transport_mean'=>1
-        );
-        $wheres['zone1'] = $row[0];
-        $wheres['zone2'] = $row[1];
-        $wheres['euston'] = $row[2];
-        $wheres['watford_junction'] = $row[3];  
-        return $wheres;
-    }
-    
-    function rail($row, $price_group) {                        
-        $wheres = array(
-            'price_group'=>$price_group,
-            'transport_mean'=>0
-        );
-        $wheres['zone1'] = $row[0];
-        $wheres['zone2'] = $row[1];
-        $wheres['euston'] = $row[2];
-        $wheres['watford_junction'] = $row[3];  
-        return $wheres;
-    }
-    
-    function railthrough($row, $price_group) {                        
-        $wheres = array(
-            'price_group'=>$price_group,
-            'transport_mean'=>20
-        );
-        $wheres['zone1'] = $row[0];
-        $wheres['zone2'] = $row[1];
-        $wheres['euston'] = $row[2];
-        $wheres['watford_junction'] = $row[3];  
-        return $wheres;
-    }
-
-    /* underground */
-    function underground_adult($row, $payType, $conditionalDiscount) {       
-        $wheres = underground($row, 1);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function underground_18($row, $payType, $conditionalDiscount) {
-        $wheres = underground($row, 2);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function underground_16($row, $payType, $conditionalDiscount) {
-        $wheres = underground($row, 3);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function underground_11($row, $payType, $conditionalDiscount) {
-        $wheres = underground($row, 4);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function underground_jobcentre($row, $payType, $conditionalDiscount) {
-        $wheres = underground($row, 7);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function underground_railcard($row, $payType, $conditionalDiscount) {
-        $wheres = underground($row, 8);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-       
-    /* rail */
-    
-    function rail_adult($row, $payType, $conditionalDiscount) {       
-        $wheres = rail($row, 1);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function rail_18($row, $payType, $conditionalDiscount) {
-        $wheres = rail($row, 2);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function rail_16($row, $payType, $conditionalDiscount) {
-        $wheres = rail($row, 3);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function rail_11($row, $payType, $conditionalDiscount) {
-        $wheres = rail($row, 4);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function rail_5($row, $payType, $conditionalDiscount) {
-        $wheres = rail($row, 5);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function rail_jobcentre($row, $payType, $conditionalDiscount) {
-        $wheres = rail($row, 7);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function rail_railcard($row, $payType, $conditionalDiscount) {
-        $wheres = rail($row, 8);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    /* rail through */
-    
-    function railthrough_adult($row, $payType, $conditionalDiscount) {       
-        $wheres = railthrough($row, 1);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function railthrough_18($row, $payType, $conditionalDiscount) {
-        $wheres = railthrough($row, 2);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function railthrough_16($row, $payType, $conditionalDiscount) {
-        $wheres = railthrough($row, 3);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function railthrough_11($row, $payType, $conditionalDiscount) {
-        $wheres = railthrough($row, 4);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function railthrough_5($row, $payType, $conditionalDiscount) {
-        $wheres = railthrough($row, 5);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function railthrough_jobcentre($row, $payType, $conditionalDiscount) {
-        $wheres = railthrough($row, 7);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-    
-    function railthrough_railcard($row, $payType, $conditionalDiscount) {
-        $wheres = railthrough($row, 8);
-        $wheres['pay_type'] = $payType;
-        $wheres['conditional_discount'] = $conditionalDiscount;
-        return $wheres;
-    }
-
-    /* ---------------------------------------------- */
-    
-    $db = new PDO('mysql:host=localhost;dbname=farecalc_backup_20140118;charset=UTF-8', 'root', '');
-
-	require('../spreadsheet-reader-master/php-excel-reader/excel_reader2.php');
+    require('../spreadsheet-reader-master/php-excel-reader/excel_reader2.php');
     require('../spreadsheet-reader-master/SpreadsheetReader.php');
 
-    $Reader = new SpreadsheetReader('../resources/tube.xls');
+    $Reader = new SpreadsheetReader('../resources/1.xls');
     $Sheets = $Reader -> Sheets();
+    
+    $fp = fopen('../resources/prices.sql', 'w');
+
          
     
-    readSheet($db, $Reader, 0, 'underground_adult');   
-    readSheet($db, $Reader, 1, 'underground_18');
-    readSheet($db, $Reader, 2, 'underground_16');
-    readSheet($db, $Reader, 3, 'underground_11');
-    readSheet($db, $Reader, 4, 'underground_jobcentre');
-    readSheet($db, $Reader, 5, 'underground_adult');
-    readSheet($db, $Reader, 6, 'underground_railcard');
-   
-    exit;
-    $Reader = new SpreadsheetReader('../resources/rail_only.xls');
-    $Sheets = $Reader -> Sheets();
-         
-    readSheet($db, $Reader, 0, 'rail_adult');
-    readSheet($db, $Reader, 1, 'rail_18');
-    readSheet($db, $Reader, 2, 'rail_16');
-    readSheet($db, $Reader, 3, 'rail_11');
-    readSheet($db, $Reader, 3, 'rail_5');
-    readSheet($db, $Reader, 4, 'rail_jobcentre');
-    readSheet($db, $Reader, 5, 'rail_adult');
-    readSheet($db, $Reader, 6, 'rail_railcard');
-   
-    $Reader = new SpreadsheetReader('../resources/rail_through.xls');
-    $Sheets = $Reader -> Sheets();
-         
-    readSheet($db, $Reader, 0, 'railthrough_adult');
-    readSheet($db, $Reader, 1, 'railthrough_18');
-    readSheet($db, $Reader, 2, 'railthrough_16');
-    readSheet($db, $Reader, 3, 'railthrough_11');
-    readSheet($db, $Reader, 3, 'railthrough_5');
-    readSheet($db, $Reader, 4, 'railthrough_jobcentre');
-    readSheet($db, $Reader, 5, 'railthrough_adult');
-    readSheet($db, $Reader, 6, 'railthrough_railcard');
-   
-   
+    $Reader -> ChangeSheet(0);       
+    $counter = 0;
+    foreach ($Reader as $row) {
+        $counter++;
+        if ($counter > 1) { 
+            
+            $fields = [
+                'value'=>'',
+                'pay_type'=>'',
+                'conditional_discount'=>'',                               
+                'transport_mean'=>$row[0],
+                'price_group'=>$row[1],                
+                'zone1'=>$row[2],
+                'zone2'=>$row[3],
+                'euston'=>$row[4],
+                'watford_junction'=>$row[5],               
+                'theobalds_grove'=>$row[6],
+                'waltham_cross'=>$row[7],
+                'cheshunt'=>$row[8],
+                'broxbourne'=>$row[9],
+                'brentwood'=>$row[10],
+                'shenfield'=>$row[11],               
+                'ockendon'=>$row[12],
+                'chefford'=>$row[13],
+                'purfleet'=>$row[14],
+                'grays'=>$row[15]
+            ];
+            
+            for ($i = 17; $i <= 25; $i++) {
+                $fields['value'] = $row[$i];
+                if ( ($fields['value'] != '') and ($fields['value'] != '0') ) {
+                    
+                    $fields['pay_type'] = '2'; // payg
+                    $row['conditional_discount'] = '0';
+                    if ($i == 18) {
+                        $fields['conditional_discount'] = '1';
+                    }
+                    else if ($i == 19) {
+                        $fields['conditional_discount'] = '2';
+                    }                    
+                    if ($i == 20) {                        
+                        $fields['conditional_discount'] = '3';                       
+                    }
+                    else if ($i == 21) {
+                        $fields['pay_type'] ='4'; 
+                        $fields['conditional_discount'] = '0';                       
+                    }
+                    else if ($i == 22) {
+                        $fields['pay_type'] ='4';
+                        $fields['conditional_discount'] = '4';                       
+                        
+                    }
+                    else if ($i == 23) {
+                        $fields['pay_type'] ='6';
+                        $fields['conditional_discount'] = '0';            
+                        if ($row[0] == 5) {
+                            // bus fixme
+                            $fields['pay_type'] ='9';
+                            $fields['conditional_discount'] = '0';                         
+                        }
+                            
+                        
+                    }
+                    else if ($i == 24) {
+                        $fields['pay_type'] ='7';
+                        $fields['conditional_discount'] = '0';                       
+                        if ($row[0] == 5) {
+                            // bus fixme
+                            $fields['pay_type'] ='10';
+                            $fields['conditional_discount'] = '0';                         
+                        }
+                    }
+                    else if ($i == 25) { 
+                        $fields['pay_type'] ='8';
+                        $fields['conditional_discount'] = '0';                       
+                        if ($row[0] == 5) {
+                            // bus fixme
+                            $fields['pay_type'] ='11';
+                            $fields['conditional_discount'] = '0';                         
+                        }
+                    }
+                }
+                
+                
+                if ( ($fields['value'] != 0) and ($fields['value'] != '') and ($fields['value'] != '-') ) {
+                    $columns = [];
+                    $values = [];
+                    foreach ($fields as $k=>$v) {
+                        if ( ($v != 0) and ($v != '') and ($v != '-') ) {
+                            array_push($columns, $k);
+                            array_push($values, $v);
+                        }
+
+                    }
+
+                    $insert = "INSERT INTO prices (".implode(",", $columns).") VALUES ('".implode("','", $values)."');   
+    ";                             
+                    fwrite($fp, $insert);
+                }
+                
+            }
+
+            
+        }           
+    }
+    
+    
+    fclose($fp);
+    echo 'done';
+
 ?>
